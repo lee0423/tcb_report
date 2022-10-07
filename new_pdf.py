@@ -2,11 +2,10 @@ from fpdf import FPDF
 from numpy import char
 import pandas as pd
 import matplotlib.pyplot as plt
-import io
-from datetime import datetime, date
-from fpdf.enums import XPos, YPos
+from datetime import datetime
 from remove_file import remove_file
 from create_files import create_metric_file
+from create_images import report_images
 
 title = '合作金庫網路銀行應用系統-'
 current_month = datetime.now().strftime('%m')
@@ -23,7 +22,6 @@ class PDF(FPDF):
         self.image('/Users/liaoyi-ming/Downloads/appd-logo.png',x=0.5,y=0.5, w=6, h=1)
         self.set_draw_color(r=169, g=169, b=169)
         self.line(x1=0, y1=1.7,x2=50,y2=1.7)
-        # self.cell(title_w, 0, 'Created date')
 
     def footer(self):
         self.set_y(-8)
@@ -34,20 +32,6 @@ class PDF(FPDF):
         self.cell(0, 15, f'Page {self.page_no()}/{{nb}}', align='C', )
         self.set_text_color(r=169, g=169, b=169)
         self.cell(0,15,f"Report creaed at {current_time}", align='R')
-        
-
-    def report_content(self):
-        self.set_font('Arial', 'B', 12,)
-        # pdf.cell(0)
-        self.set_x(0.1)
-        self.set_y(2)
-        # self.set_text_color(r=169,g=169,b=169)
-        self.cell(5, 1, 'Title', border=0, ln=1, align='L')
-
-    def report_header(self):
-        self.set_xy(x=0.5,y=2.5)
-        self.cell(5,0, "最大值:",border=False,ln=2)
-        self.cell(5,0, "最小值:",border=False,)
 
 
 def create_report(pdf_name):
@@ -57,7 +41,6 @@ def create_report(pdf_name):
     link = pdf.add_link()
     pdf.set_link(link, page=2)
     pdf.set_y(3)
-    # pdf.set_text_color(r=0,g=0,b=255)
     pdf.set_fill_color(3, 182, 252)
     pdf.cell(txt="Internal link to second page", border=0, link=link, fill=True,)
     pdf.add_font('fireflysung', 
@@ -67,9 +50,13 @@ def create_report(pdf_name):
 
     import os
 
+    #remove all files in the report folder before processing.
     remove_file()
+
+    #create excel for each metric from dexter.
     create_metric_file()
 
+    #count all files in the report folder.
     count = 0
     dir_path = '/Users/liaoyi-ming/Desktop/tcb_report/'
     for path in os.listdir(dir_path):
@@ -87,4 +74,6 @@ def create_report(pdf_name):
     pdf.output(pdf_name)
 
 if __name__ == "__main__":
+
+    #create report and pass a location for file saving.
     create_report("/Users/liaoyi-ming/Downloads/pdf_2.pdf")
